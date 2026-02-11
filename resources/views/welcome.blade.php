@@ -49,7 +49,7 @@
                     </div>
 
                     <div>
-                        <label for="price" class="block text-gray-700 font-semibold mb-2">Price (USD)</label>
+                        <label for="price" class="block text-gray-700 font-semibold mb-2">Price ($)</label>
                         <input type="number" id="price" name="price" step="0.01" min="0" required placeholder="0.00"
                             class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 transition-colors">
                         @error('price')
