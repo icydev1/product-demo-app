@@ -114,7 +114,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ \Carbon\Carbon::parse($product->expiry_date)->format('M d, Y') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium no-print">
                                     <div class="flex flex-wrap gap-2">
-                                        <button onclick="printProduct('{{ $product->name }}', '{{ number_format($product->price, 2) }}', '{{ \Carbon\Carbon::parse($product->manufacturer_date)->format('M d, Y') }}', '{{ \Carbon\Carbon::parse($product->expiry_date)->format('M d, Y') }}')" 
+                                        <button onclick="printProduct('{{ $product->id }}', '{{ $product->name }}', '{{ number_format($product->price, 2) }}', '{{ \Carbon\Carbon::parse($product->manufacturer_date)->format('M d, Y') }}', '{{ \Carbon\Carbon::parse($product->expiry_date)->format('M d, Y') }}')" 
                                             class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
                                             🖨️ Print
                                         </button>
@@ -195,7 +195,7 @@
                         </div>
                         
                         <div class="no-print flex flex-wrap gap-2 mt-4">
-                            <button onclick="printProduct('{{ $product->name }}', '{{ number_format($product->price, 2) }}', '{{ \Carbon\Carbon::parse($product->manufacturer_date)->format('M d, Y') }}', '{{ \Carbon\Carbon::parse($product->expiry_date)->format('M d, Y') }}')" 
+                            <button onclick="printProduct('{{ $product->id }}', '{{ $product->name }}', '{{ number_format($product->price, 2) }}', '{{ \Carbon\Carbon::parse($product->manufacturer_date)->format('M d, Y') }}', '{{ \Carbon\Carbon::parse($product->expiry_date)->format('M d, Y') }}')" 
                                 class="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
                                 🖨️ Print
                             </button>
@@ -311,7 +311,10 @@
             }
         }
 
-        function printProduct(productName, productPrice, mfgDate, expiryDate) {
+        function printProduct(productId, productName, productPrice, mfgDate, expiryDate) {
+            // Generate a unique barcode using product ID (padded to 12 digits)
+            const barcodeValue = String(productId).padStart(12, '0');
+            
             // Create a new window for printing
             const printWindow = window.open('', '_blank', 'width=800,height=600');
             
@@ -320,7 +323,8 @@
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Print Product Label</title>
+                    <title>Print Product Label - ${productName}</title>
+                    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"><\/script>
                     <style>
                         @page {
                             size: 4in 3in;
@@ -350,15 +354,27 @@
                         .product-name {
                             font-size: 18pt;
                             font-weight: bold;
-                            margin-bottom: 15px;
+                            margin-bottom: 8px;
                             word-wrap: break-word;
+                            text-align: center;
+                        }
+                        
+                        .barcode-container {
+                            text-align: center;
+                            margin-bottom: 10px;
+                            background: white;
+                        }
+                        
+                        #barcode {
+                            max-width: 100%;
+                            height: auto;
                         }
                         
                         .info-grid {
                             display: grid;
                             grid-template-columns: 1fr 1fr;
                             gap: 8px;
-                            font-size: 11pt;
+                            font-size: 10pt;
                         }
                         
                         .info-row {
@@ -368,14 +384,15 @@
                         
                         .info-label {
                             font-weight: bold;
-                            font-size: 9pt;
+                            font-size: 8pt;
                             text-transform: uppercase;
                             margin-bottom: 2px;
+                            color: #333;
                         }
                         
                         .info-value {
-                            font-size: 11pt;
-                            padding: 4px 0;
+                            font-size: 10pt;
+                            padding: 3px 0;
                             border-bottom: 1px solid #333;
                         }
                     </style>
@@ -383,6 +400,10 @@
                 <body>
                     <div class="label-container">
                         <div class="product-name">${productName}</div>
+                        
+                        <div class="barcode-container">
+                            <svg id="barcode"></svg>
+                        </div>
                         
                         <div class="info-grid">
                             <div class="info-row">
@@ -392,7 +413,7 @@
                             
                             <div class="info-row">
                                 <div class="info-label">Net Weight:</div>
-                                <div class="info-value"></div>
+                                <div class="info-value">_______</div>
                             </div>
                             
                             <div class="info-row">
@@ -406,6 +427,25 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <script>
+                        // Generate barcode when page loads
+                        window.onload = function() {
+                            try {
+                                JsBarcode("#barcode", "${barcodeValue}", {
+                                    format: "CODE128",
+                                    width: 1.5,
+                                    height: 40,
+                                    displayValue: true,
+                                    fontSize: 10,
+                                    margin: 2,
+                                    background: "#ffffff"
+                                });
+                            } catch (error) {
+                                console.error('Barcode generation error:', error);
+                            }
+                        };
+                    <\/script>
                 </body>
                 </html>
             `);
@@ -413,11 +453,11 @@
             printWindow.document.close();
             printWindow.focus();
             
-            // Wait for content to load then print
+            // Wait for content and barcode to load then print
             setTimeout(() => {
                 printWindow.print();
                 printWindow.close();
-            }, 250);
+            }, 750);
         }
     </script>
 </body>
