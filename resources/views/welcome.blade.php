@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Product CRUD Demo</title>
+    <title>FIJI Products</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @media print {
@@ -19,7 +19,7 @@
 <body class="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 min-h-screen py-6 px-4 sm:px-6 lg:px-8">
     <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-2xl p-6 sm:p-8 lg:p-10">
         <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-800 mb-6 sm:mb-8 text-center">
-            🛍️ Product CRUD Demo
+            🛍️ FIJI Products
         </h1>
 
         @if(session('success'))
@@ -56,6 +56,24 @@
                             <span class="text-red-600 text-sm mt-1 block">{{ $message }}</span>
                         @enderror
                     </div>
+
+                    <div>
+                        <label for="manufacturer_date" class="block text-gray-700 font-semibold mb-2">Manufacturer Date</label>
+                        <input type="date" id="manufacturer_date" name="manufacturer_date" required
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 transition-colors">
+                        @error('manufacturer_date')
+                            <span class="text-red-600 text-sm mt-1 block">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="expiry_date" class="block text-gray-700 font-semibold mb-2">Expiry Date</label>
+                        <input type="date" id="expiry_date" name="expiry_date" required
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500 transition-colors">
+                        @error('expiry_date')
+                            <span class="text-red-600 text-sm mt-1 block">{{ $message }}</span>
+                        @enderror
+                    </div>
                 </div>
 
                 <div class="flex flex-wrap gap-3">
@@ -81,6 +99,8 @@
                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">ID</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Product Name</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Price</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Mfg. Date</th>
+                            <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider">Expiry Date</th>
                             <th class="px-6 py-4 text-left text-sm font-semibold uppercase tracking-wider no-print">Actions</th>
                         </tr>
                     </thead>
@@ -90,9 +110,11 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $product->id }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $product->name }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${{ number_format($product->price, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ \Carbon\Carbon::parse($product->manufacturer_date)->format('M d, Y') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ \Carbon\Carbon::parse($product->expiry_date)->format('M d, Y') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium no-print">
                                     <div class="flex flex-wrap gap-2">
-                                        <button onclick="printProduct('{{ $product->name }}', '{{ number_format($product->price, 2) }}')" 
+                                        <button onclick="printProduct('{{ $product->name }}', '{{ number_format($product->price, 2) }}', '{{ \Carbon\Carbon::parse($product->manufacturer_date)->format('M d, Y') }}', '{{ \Carbon\Carbon::parse($product->expiry_date)->format('M d, Y') }}')" 
                                             class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
                                             🖨️ Print
                                         </button>
@@ -114,11 +136,11 @@
                             
                             <!-- Edit Form Row (Hidden by default) -->
                             <tr class="edit-form hidden" id="edit-{{ $product->id }}">
-                                <td colspan="4" class="px-6 py-4 bg-yellow-50">
+                                <td colspan="6" class="px-6 py-4 bg-yellow-50">
                                     <form action="{{ route('products.update', $product) }}" method="POST">
                                         @csrf
                                         @method('PUT')
-                                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                                             <div>
                                                 <label class="block text-gray-700 font-semibold mb-2 text-sm">Product Name</label>
                                                 <input type="text" name="name" value="{{ $product->name }}" required
@@ -129,7 +151,17 @@
                                                 <input type="number" name="price" value="{{ $product->price }}" step="0.01" min="0" required
                                                     class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
                                             </div>
-                                            <div class="flex gap-2 col-span-1 sm:col-span-2">
+                                            <div>
+                                                <label class="block text-gray-700 font-semibold mb-2 text-sm">Manufacturer Date</label>
+                                                <input type="date" name="manufacturer_date" value="{{ $product->manufacturer_date->format('Y-m-d') }}" required
+                                                    class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
+                                            </div>
+                                            <div>
+                                                <label class="block text-gray-700 font-semibold mb-2 text-sm">Expiry Date</label>
+                                                <input type="date" name="expiry_date" value="{{ $product->expiry_date->format('Y-m-d') }}" required
+                                                    class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
+                                            </div>
+                                            <div class="flex gap-2 col-span-1 sm:col-span-2 lg:col-span-3">
                                                 <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors">
                                                     💾 Save
                                                 </button>
@@ -155,11 +187,15 @@
                                 <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ $product->name }}</h3>
                                 <p class="text-2xl font-bold text-indigo-600">${{ number_format($product->price, 2) }}</p>
                                 <p class="text-xs text-gray-500 mt-1">ID: {{ $product->id }}</p>
+                                <div class="mt-2 space-y-1">
+                                    <p class="text-sm text-gray-600"><span class="font-semibold">Mfg:</span> {{ \Carbon\Carbon::parse($product->manufacturer_date)->format('M d, Y') }}</p>
+                                    <p class="text-sm text-gray-600"><span class="font-semibold">Exp:</span> {{ \Carbon\Carbon::parse($product->expiry_date)->format('M d, Y') }}</p>
+                                </div>
                             </div>
                         </div>
                         
                         <div class="no-print flex flex-wrap gap-2 mt-4">
-                            <button onclick="printProduct('{{ $product->name }}', '{{ number_format($product->price, 2) }}')" 
+                            <button onclick="printProduct('{{ $product->name }}', '{{ number_format($product->price, 2) }}', '{{ \Carbon\Carbon::parse($product->manufacturer_date)->format('M d, Y') }}', '{{ \Carbon\Carbon::parse($product->expiry_date)->format('M d, Y') }}')" 
                                 class="flex-1 bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
                                 🖨️ Print
                             </button>
@@ -191,6 +227,16 @@
                                     <div>
                                         <label class="block text-gray-700 font-semibold mb-2 text-sm">Price (USD)</label>
                                         <input type="number" name="price" value="{{ $product->price }}" step="0.01" min="0" required
+                                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 font-semibold mb-2 text-sm">Manufacturer Date</label>
+                                        <input type="date" name="manufacturer_date" value="{{ $product->manufacturer_date->format('Y-m-d') }}" required
+                                            class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 font-semibold mb-2 text-sm">Expiry Date</label>
+                                        <input type="date" name="expiry_date" value="{{ $product->expiry_date->format('Y-m-d') }}" required
                                             class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
                                     </div>
                                     <div class="flex gap-2">
@@ -265,7 +311,7 @@
             }
         }
 
-        function printProduct(productName, productPrice) {
+        function printProduct(productName, productPrice, mfgDate, expiryDate) {
             // Create a new window for printing
             const printWindow = window.open('', '_blank', 'width=800,height=600');
             
@@ -274,42 +320,90 @@
                 <!DOCTYPE html>
                 <html>
                 <head>
-                    <title>Print Product</title>
+                    <title>Print Product Label</title>
                     <style>
+                        @page {
+                            size: 4in 3in;
+                            margin: 0;
+                        }
+                        
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
                         body {
                             font-family: Arial, sans-serif;
-                            padding: 20px;
+                            width: 4in;
+                            height: 3in;
+                            padding: 0.2in;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
                         }
-                        .print-content {
-                            max-width: 600px;
-                            margin: 0 auto;
+                        
+                        .label-container {
+                            width: 100%;
                         }
-                        h2 {
-                            color: #333;
-                            margin-bottom: 20px;
-                        }
-                        .product-info {
-                            margin: 20px 0;
-                            font-size: 16px;
-                        }
-                        .product-info p {
-                            margin: 10px 0;
-                            padding: 10px;
-                            background: #f5f5f5;
-                            border-left: 4px solid #667eea;
-                        }
-                        .label {
+                        
+                        .product-name {
+                            font-size: 18pt;
                             font-weight: bold;
-                            color: #555;
+                            margin-bottom: 15px;
+                            word-wrap: break-word;
+                        }
+                        
+                        .info-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 8px;
+                            font-size: 11pt;
+                        }
+                        
+                        .info-row {
+                            display: flex;
+                            flex-direction: column;
+                        }
+                        
+                        .info-label {
+                            font-weight: bold;
+                            font-size: 9pt;
+                            text-transform: uppercase;
+                            margin-bottom: 2px;
+                        }
+                        
+                        .info-value {
+                            font-size: 11pt;
+                            padding: 4px 0;
+                            border-bottom: 1px solid #333;
                         }
                     </style>
                 </head>
                 <body>
-                    <div class="print-content">
-                        <h2>Product Details</h2>
-                        <div class="product-info">
-                            <p><span class="label">Product Name:</span> ${productName}</p>
-                            <p><span class="label">Price:</span> $${productPrice}</p>
+                    <div class="label-container">
+                        <div class="product-name">${productName}</div>
+                        
+                        <div class="info-grid">
+                            <div class="info-row">
+                                <div class="info-label">Price:</div>
+                                <div class="info-value">$${productPrice}</div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label">Net Weight:</div>
+                                <div class="info-value"></div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label">Pack Date:</div>
+                                <div class="info-value">${mfgDate}</div>
+                            </div>
+                            
+                            <div class="info-row">
+                                <div class="info-label">Best Before:</div>
+                                <div class="info-value">${expiryDate}</div>
+                            </div>
                         </div>
                     </div>
                 </body>

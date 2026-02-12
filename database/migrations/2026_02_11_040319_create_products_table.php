@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->decimal('price', 10, 2);
+            $table->date('manufacturer_date');
+            $table->date('expiry_date');
+            $table->unsignedInteger('copies')->default(1);
             $table->timestamps();
         });
     }

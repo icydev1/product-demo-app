@@ -24,6 +24,9 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'manufacturer_date' => 'required|date',
+            'expiry_date' => 'required|date|after:manufacturer_date',
+            // 'copies' => 'required|integer|min:1|max:1000',
         ]);
 
         Product::create($validated);
@@ -31,6 +34,7 @@ class ProductController extends Controller
         return redirect()->route('products.index')
             ->with('success', 'Product added successfully!');
     }
+
 
     /**
      * Update the specified product in storage.
@@ -40,6 +44,9 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'manufacturer_date' => 'required|date',
+            'expiry_date' => 'required|date|after:manufacturer_date',
+            // 'copies' => 'required|integer|min:1|max:1000',
         ]);
 
         $product->update($validated);
@@ -47,6 +54,7 @@ class ProductController extends Controller
         return redirect()->route('products.index')
             ->with('success', 'Product updated successfully!');
     }
+
 
     /**
      * Remove the specified product from storage.

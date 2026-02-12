@@ -9,22 +9,18 @@ class Product extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'price',
+        'manufacturer_date',
+        'expiry_date',
+        'copies',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'price' => 'decimal:2',
+        'manufacturer_date' => 'date',
+        'expiry_date' => 'date',
+        'copies' => 'integer',
     ];
 }
